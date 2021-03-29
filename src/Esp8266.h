@@ -13,7 +13,7 @@ class _FLOAT
 class Esp8266
 {
 	public:
-		void reset();
+		void reset() {};
 };
 
 class Serial_ : public Stream
