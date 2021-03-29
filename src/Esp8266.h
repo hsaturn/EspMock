@@ -21,4 +21,3 @@ class Serial_ : public Stream
 };
 
 Esp8266 ESP;
-Serial_ Serial;

@@ -7,7 +7,7 @@ class WiFiClient
 	public:
 		void write(const char* p, unsigned int length);
 		bool connected() const;
-		void connect(const char* host, uint16_t port);
+		bool connect(const char* host, uint16_t port);
 		void stop();
 };
 
