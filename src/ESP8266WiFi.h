@@ -5,10 +5,15 @@
 class WiFiClient
 {
 	public:
-		void write(const char* p, unsigned int length);
+		void write(void * p, unsigned int length);
 		bool connected() const;
 		bool connect(const char* host, uint16_t port);
 		void stop();
+		bool available();
+
+		char read();
+
+		operator bool() const;
 };
 
 class WiFiServer
@@ -17,4 +22,5 @@ class WiFiServer
 		WiFiServer(const unsigned int);
 		void begin();
 		int port() const;
+		bool available();
 };
