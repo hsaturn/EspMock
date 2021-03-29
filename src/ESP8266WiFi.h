@@ -5,7 +5,7 @@
 class WiFiClient
 {
 	public:
-		void write(const char* p, uint32_t length);
+		void write(const char* p, unsigned int length);
 };
 
 class WiFiServer
