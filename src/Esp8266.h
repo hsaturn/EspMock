@@ -1,6 +1,10 @@
 #pragma once
 
-using _FLOAT=float;
+class _FLOAT
+{
+	public:
+		int digits;
+};
 
 class Esp8266
 {

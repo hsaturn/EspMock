@@ -6,6 +6,7 @@ class WiFiClient
 {
 	public:
 		void write(const char* p, unsigned int length);
+		bool connected() const;
 };
 
 class WiFiServer
