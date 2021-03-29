@@ -1,5 +1,7 @@
 #pragma once
 
+using _FLOAT=float;
+
 class Esp8266
 {
 	public:
