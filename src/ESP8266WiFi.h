@@ -1,4 +1,4 @@
-// vim: ts=2, sw=2
+// vim: ts=2 sw=2
 #pragma once
 #include <Esp8266.h>
 
@@ -12,5 +12,5 @@ class WiFiServer
 {
 	public:
 		void begin();
-		uint16_t port();
+		int port();
 };
