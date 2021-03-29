@@ -20,4 +20,4 @@ class Serial_ : public Stream
 {
 };
 
-Esp8266 ESP;
+extern Esp8266 ESP;
