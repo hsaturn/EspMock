@@ -25,6 +25,7 @@ class WiFiServer
 		WiFiServer(const unsigned int) {};
 		void begin() {};
 		int port() const { return port_; };
+		void close(){};
 		WiFiClient available() { return WiFiClient(); }
 
 	private:
