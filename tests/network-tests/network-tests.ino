@@ -32,7 +32,7 @@ test(network_wificlient_should_not_return_connected_when_not_connected)
 {
     WiFiClient client;
     assertFalse(client.connected());
-    client.connect("cannot-connect-there-because-of-wrong-domain.com", 80);
+    client.connect("cannot-connect-there-because-of-wrong-domain.com", 1234);
     assertFalse(client.connected());
 }
 

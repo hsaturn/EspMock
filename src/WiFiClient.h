@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
 #include <Client.h>
 
 class WiFiClient : public Client
@@ -69,7 +70,12 @@ class WiFiClient : public Client
     void flush() override { Serial.println("NYI flush"); };
     int peek() override { Serial.println("NYI peek"); return 0; }
     void stop() {};
-    int available() override { Serial.println("NYI available"); return 0; }
+    int available() override
+    {
+      if (!connected()) return 0;
+      int value; if (ioctl(sockfd, FIONREAD, &value)==-1) return 0;
+      return value;
+    }
 
     operator bool() override { return available() or connected(); }
 
