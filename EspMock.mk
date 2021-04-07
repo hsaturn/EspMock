@@ -5,7 +5,7 @@ espmock_dir := $(dir $(espmock_path))
 ESP_MODEL = esp8266
 ESPMOCK_LIBDIRS = $(espmock_dir)/libraries/
 
-# ARDUINO_LIB_DIRS = $(espmock_dir)/libraries/
+ARDUINO_LIB_DIRS = $(espmock_dir)/libraries/
 
 ESPMOCK_INCLUDES=$(foreach esplib,$(ESP_LIBS), -I$(ESPMOCK_LIBDIRS)/${esplib}/src)
 
