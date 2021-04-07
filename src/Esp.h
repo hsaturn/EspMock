@@ -11,10 +11,10 @@ class _FLOAT
 		float val;
 };
 
-class Esp8266
+class EspClass
 {
 	public:
-		Esp8266()
+		EspClass()
 		{ gettimeofday(&start, NULL); }
 		void reset() {};
 		unsigned long getFreeHeap()
@@ -36,4 +36,4 @@ class Serial_ : public Stream
 {
 };
 
-extern Esp8266 ESP;
+extern EspClass ESP;
