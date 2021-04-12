@@ -1,5 +1,6 @@
-// vim: ts=2 sw=2
-#pragma once
-#include <Esp.h>
-#include <WiFiClient.h>
+#ifndef ESP_MOCK_ESP8266_WIFI_H
+#define ESP_MOCK_ESP8266_WIFI_H
 
+#include "WiFiClient.h"
+
+#endif
