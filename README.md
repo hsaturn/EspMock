@@ -14,28 +14,48 @@ for any other project that needs mocks for ESP8266 and ESP32 libraries.
 
 ## Installation
 
-This project *cannot* be installed through the Arduino Library Manager because
-it is compatible only with EpoxyDuino. You need to run the `git clone` command
-manually. It is probably best to install at the same location as a normal
-Arduino library. In other words, locate the `./libraries/` directory of your
-sketchbook directory used by the Arduino IDE:
+You must install both of the following projects:
+
+* https://github.com/bxparks/EpoxyDuino
+* https://github.com/hsaturn/EspMock
+
+These projects *cannot* be installed through the Arduino Library Manager because
+they are not normal Arduino libraries. It is probably most convenient to install
+them in the same location as other Arduino library directory. In other words,
+locate the `./libraries/` directory of your sketchbook directory used by the
+Arduino IDE, and run the following commands:
 
 ```bash
-$ cd {sketchbook_location}/libraries
+$ cd {SketchBookDirectory}/libraries
+$ git clone https://github.com/bxparks/EpoxyDuino
 $ git clone https://github.com/hsaturn/EspMock
 ```
 
-Then add `EspMock` to the `ARDUINO_LIBS` variable of the EpoxyDuino `Makefile`
-located in directory of the Arduino sketch that you want to compile, like this:
+## Usage
+
+For each Arduino program, we need to create a `Makefile`
+as described in [EpoxyDuino](https://github.com/bxparks/EpoxyDuino), but with a
+few extra parameters:
+
+* Add the `EPOXY_CORE_PATH` variable (new for EpoxyDuino v0.7), pointing to the
+  `{EspMock}/cores/esp8266/` directory.
+* Add `EspMock` to the `ARDUINO_LIBS` variable.
+* Add a `ARDUINO_LIB_DIRS` variable that points to
+  `{EspMockDirectory}/libraries` directory to pickup additional ESP8266 or ESP32
+  mock libraries provided by EspMock.
+
+The result is a `Makefile` that looks like this:
 
 ```
-APP_NAME := network-tests
+APP_NAME := {NameOfSketch}
 ARDUINO_LIBS := {Lib1} {Lib2} ... EspMock
-include ../../../EpoxyDuino/EpoxyDuino.mk
+ARDUINO_LIB_DIRS := {EspMockDirectory}/libraries
+EPOXY_CORE_PATH := {EspMockDirectory}/cores/esp8266
+include {EpoxyDuinoDirectory}/EpoxyDuino.mk
 ```
 
-See [EpoxyDuino](https://github.com/bxparks/EpoxyDuino) for information on how
-to configure the `Makefile`.
+See [tests/network-tests/Makefile](tests/network-tests/Makefile) for a concrete
+example.
 
 ## License
 
