@@ -38,17 +38,16 @@ as described in [EpoxyDuino](https://github.com/bxparks/EpoxyDuino), but with a
 few extra parameters:
 
 * Add the `EPOXY_CORE_PATH` variable (new for EpoxyDuino v0.7), pointing to the
-  `{EspMock}/cores/esp8266/` directory.
-* Add `EspMock` to the `ARDUINO_LIBS` variable.
+  `{EspMock}/cores/esp8266` directory.
 * Add a `ARDUINO_LIB_DIRS` variable that points to
-  `{EspMockDirectory}/libraries` directory to pickup additional ESP8266 or ESP32
-  mock libraries provided by EspMock.
+  `{EspMockDirectory}/libraries` directory to pickup additional ESP8266 or
+  ESP32 mock libraries provided by EspMock.
 
 The result is a `Makefile` that looks like this:
 
 ```
 APP_NAME := {NameOfSketch}
-ARDUINO_LIBS := {Lib1} {Lib2} ... EspMock
+ARDUINO_LIBS := {Lib1} {Lib2} ...
 ARDUINO_LIB_DIRS := {EspMockDirectory}/libraries
 EPOXY_CORE_PATH := {EspMockDirectory}/cores/esp8266
 include {EpoxyDuinoDirectory}/EpoxyDuino.mk
