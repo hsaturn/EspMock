@@ -14,10 +14,11 @@ for any other project that needs mocks for ESP8266 and ESP32 libraries.
 
 ## Installation
 
-You must install both of the following projects:
+You must install the following projects:
 
 * https://github.com/bxparks/EpoxyDuino
 * https://github.com/hsaturn/EspMock
+* https://github.com/bxparks/AUnit
 
 These projects *cannot* be installed through the Arduino Library Manager because
 they are not normal Arduino libraries. It is probably most convenient to install
@@ -29,6 +30,7 @@ Arduino IDE, and run the following commands:
 $ cd {SketchBookDirectory}/libraries
 $ git clone https://github.com/bxparks/EpoxyDuino
 $ git clone https://github.com/hsaturn/EspMock
+$ git clone https://github.com/bxparks/AUnit
 ```
 
 ## Usage
