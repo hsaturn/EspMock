@@ -64,5 +64,5 @@ example.
 
 ## Authors
 
-* Created by https://github.com/hsaturn
-* With help from https://github.com/bxparks
+* https://github.com/hsaturn
+* https://github.com/bxparks
