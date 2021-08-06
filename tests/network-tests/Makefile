@@ -4,5 +4,5 @@
 APP_NAME := network-tests
 ARDUINO_LIBS := AUnit TinyMqtt ESP8266WiFi
 ARDUINO_LIB_DIRS := ../../libraries
-EPOXY_CORE_PATH := ../../cores/esp8266
+EPOXY_CORE := EPOXY_CORE_ESP8266
 include ../../../EpoxyDuino/EpoxyDuino.mk
