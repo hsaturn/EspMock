@@ -1,5 +1,6 @@
 // vim: ts=2 sw=2 expandtab
 #pragma once
+#include <Arduino.h>
 #include <IPAddress.h>
 #include <sys/socket.h>
 #include <netdb.h>
