@@ -11,6 +11,16 @@
 
 using namespace std;
 
+int i=0;
+
+test(wifi_should_connect_on_fake_network)
+{
+  WiFi.mode(WIFI_STA);
+  WiFi.begin("fake_ssid", "fake_pwd");
+
+  assertEqual(WiFi.status(), WL_CONNECTED);
+}
+
 test(network_wificlient_should_return_connected_when_connected_byname)
 {
     WiFiClient client;
@@ -39,7 +49,9 @@ test(network_wificlient_should_not_return_connected_when_not_connected)
     assertFalse(client.connected());
 }
 
-void setup() {
+void setup()
+{
+  i=0;
 }
 
 void loop() {
