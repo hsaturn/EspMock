@@ -19,6 +19,22 @@ test(wifi_should_connect_on_fake_network)
   WiFi.begin("fake_ssid", "fake_pwd");
 
   assertEqual(WiFi.status(), WL_CONNECTED);
+  assertNotEqual(static_cast<uint32_t>(WiFi.localIP()), (uint32_t)0);
+}
+
+test(wifi_two_wifi_shouldnt_have_same_ip)
+{
+  WiFi.mode(WIFI_STA);
+  WiFi.begin("fake_ssid", "fake_pwd");
+  assertEqual(WiFi.status(), WL_CONNECTED);
+
+  ESP8266WiFiClass esp2;
+  esp2.mode(WIFI_STA);
+  esp2.begin("fake_ssid", "fake_pwd");
+  assertEqual(esp2.status(), WL_CONNECTED);
+
+  assertNotEqual(WiFi.localIP(), esp2.localIP());
+
 }
 
 test(wifi_should_be_wldisconnect_and_ip_unset_after_disconnection)

@@ -3,6 +3,7 @@
 #include "WiFiClient.h"
 #include "ESP8266WiFiTypes.h"
 #include <wl_definitions.h>
+#include <set>
 
 class ESP8266WiFiClass
 {
@@ -23,6 +24,8 @@ class ESP8266WiFiClass
     wl_status_t status_;
     WiFiMode_t mode_ = WIFI_OFF;
     IPAddress ip_address_;
+
+    static std::set<uint8_t> ip_used;  // Used IP (*.*.*.x)
 };
 
 extern ESP8266WiFiClass WiFi;
