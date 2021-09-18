@@ -21,6 +21,18 @@ test(wifi_should_connect_on_fake_network)
   assertEqual(WiFi.status(), WL_CONNECTED);
 }
 
+test(wifi_should_be_wldisconnect_and_ip_unset_after_disconnection)
+{
+  WiFi.mode(WIFI_STA);
+  WiFi.begin("fake_ssid", "fake_pwd");
+  WiFi.disconnect();
+  assertEqual(WiFi.status(), WL_DISCONNECTED);
+
+  // EpoxyDuino has no implementation of IPAddress::isSet()
+  // so we assume that 0 is an unset ip
+  assertEqual(static_cast<uint32_t>(WiFi.localIP()), (uint32_t)0);
+}
+
 test(network_wificlient_should_return_connected_when_connected_byname)
 {
     WiFiClient client;
