@@ -65,8 +65,47 @@ test(network_wificlient_should_return_connected_when_connected_byipaddress)
   WiFiClient client;
   assertFalse(client.connected());
   client.connect(ip, 80);
-  // assertTrue(client.connected());
-  Serial.println("FIXME this test does not work well");
+  assertTrue(client.connected());
+}
+
+test(network_simulate_two_esp_have_different_ip)
+{
+    ESP8266WiFiClass::selectInstance(1);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin("fake_ssid", "fake_pwd");
+    IPAddress ip_1 = WiFi.localIP();
+
+    ESP8266WiFiClass::selectInstance(2);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin("fake_ssid", "fake_pwd");
+    IPAddress ip_2 = WiFi.localIP();
+
+    assertNotEqual(ip_1, ip_2);
+
+    // Back to 1st instance
+    ESP8266WiFiClass::selectInstance(1);
+    IPAddress ip_11 = WiFi.localIP();
+    assertEqual(ip_1, ip_11);
+}
+
+test(network_two_esp_communication)
+{
+    // 1 Connect two esp
+    ESP8266WiFiClass::selectInstance(1);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin("fake_ssid", "fake_pwd");
+    IPAddress ip_1 = WiFi.localIP();
+
+    ESP8266WiFiClass::selectInstance(2);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin("fake_ssid", "fake_pwd");
+    IPAddress ip_2 = WiFi.localIP();
+
+    // Now connect two clients together
+    ESP8266WiFiClass::selectInstance(1);
+    WiFiClient client;
+    client.connect(ip_1, 1234);
+
 }
 
 test(network_wificlient_should_not_return_connected_when_not_connected)
