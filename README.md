@@ -7,6 +7,8 @@ Mocks for various ESP8266 functions and libraries, designed to be used under
 [EpoxyDuino](https://github.com/bxparks/EpoxyDuino) which provides the Arduino
 programming API on a Linux, MacOS or FreeBSD environment.
 
+The WiFi simulation can manage many virtual devices so it is possible to write unit tests between many Esps.
+
 This project was originally created to run
 [AUnit](https://github.com/bxparks/AUnit) unit tests for the
 [TinyMqtt](https://github.com/hsaturn/TinyMqtt) library, but it can be useful

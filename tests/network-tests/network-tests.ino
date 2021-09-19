@@ -99,7 +99,7 @@ test(network_two_esp_communication)
     ESP8266WiFiClass::selectInstance(2);
     WiFi.mode(WIFI_STA);
     WiFi.begin("fake_ssid", "fake_pwd");
-    IPAddress ip_2 = WiFi.localIP();
+    // IPAddress ip_2 = WiFi.localIP();
 
     // Now connect two clients together
     ESP8266WiFiClass::selectInstance(1);
