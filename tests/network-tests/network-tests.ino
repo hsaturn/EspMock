@@ -103,6 +103,24 @@ test(wifi_should_be_wldisconnect_and_ip_unset_after_disconnection)
   assertEqual(static_cast<uint32_t>(WiFi.localIP()), (uint32_t)0);
 }
 
+test(network_two_esp_server_early_accept)
+{
+  start_servers(2);
+  IPAddress ip = WiFi.localIP();
+
+  WiFiServer server(80);
+  server.begin();
+  server.earlyAccept(true);
+
+  ESP8266WiFiClass::selectInstance(2);
+  WiFiClient client;
+  assertFalse(client.connected());
+  client.connect(ip, 80);
+
+  // Link already established with early_connect
+  assertTrue(client.connected());
+}
+
 test(network_two_esp_client_connects_to_server)
 {
   start_servers(2);
@@ -122,7 +140,6 @@ test(network_two_esp_client_connects_to_server)
   // establish link
   WiFiClient link = server.available();
   assertTrue(client.connected());
-
 }
 
 test(network_one_esp_cannot_connect_to_itself_with_127_0_0_1)

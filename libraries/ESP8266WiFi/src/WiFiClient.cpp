@@ -52,14 +52,18 @@ int WiFiClient::connect(IPAddress ip, uint16_t port)
 {
     _close();
     connected_ = nullptr;
-    connecting_ = false;
+    connecting_ = true;
     auto ptr = ESP8266WiFiClass::getInstance(ip);
-    if (ptr == wifi) return 0;  // ESP cannot connect to itself.
-    if (ptr == nullptr) return 0;
-    if (ptr->establishLink(port, this))
+
+    // ESP cannot connect to itself
+    if (ptr == wifi or ptr==nullptr)
     {
-        connecting_ = true;
+        connecting_ = false;
+        return 0;
     }
+    if (not ptr->establishLink(port, this))
+        connecting_ = false;
+
     return connecting_;
 }
 

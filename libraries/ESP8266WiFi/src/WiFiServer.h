@@ -25,6 +25,8 @@ public:
   void close();
   void stop();
 
+  void earlyAccept(bool early);
+
   // emulation
 private:
   friend class WiFiClient;
@@ -36,8 +38,15 @@ private:
 private:
   std::shared_ptr<ESP8266WiFiClass> wifi;
 
+  std::list<WiFiClient*> _early_accepted;
   std::list<WiFiClient*> _unclaimed;
-  uint16_t _port;
+  uint16_t _port = 0;
   uint8_t _state = CLOSED;
   WiFiClient* established_ = nullptr;
+
+  // Early accept incoming connection, allows to connect immediately
+  // a WiFiClient to a WiFiServer in monothread context. Without that
+  // the WiFiClient::connect, can never connect because ::available() is
+  // not called.
+  bool early_accept = false;
 };
