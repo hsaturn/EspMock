@@ -49,19 +49,19 @@ test(wifi_should_be_wldisconnect_and_ip_unset_after_disconnection)
   assertEqual(static_cast<uint32_t>(WiFi.localIP()), (uint32_t)0);
 }
 
-test(network_wificlient_should_return_connected_when_connected_byname)
-{
-    WiFiClient client;
-    assertFalse(client.connected());
-    client.connect("www.google.com", 80);
-    assertTrue(client.connected());
-}
-
 test(network_wificlient_should_return_connected_when_connected_byipaddress)
 {
   // TODO this test is wrong because localhost does not always have a
   // web server...We should create one before
-  IPAddress ip{127,0,0,1};
+  // IPAddress ip{127,0,0,1}; TODO should work on local esp ?
+  ESP8266WiFiClass::selectInstance(1);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin("fake_ssid", "fake_pwd");
+  IPAddress ip = WiFi.localIP();
+  WiFiServer server(80);
+  server.begin();
+
+  ESP8266WiFiClass::selectInstance(1);
   WiFiClient client;
   assertFalse(client.connected());
   client.connect(ip, 80);
@@ -118,7 +118,7 @@ test(network_wificlient_should_not_return_connected_when_not_connected)
 
 void setup()
 {
-  i=0;
+    ESP8266WiFiClass::resetInstances();
 }
 
 void loop() {

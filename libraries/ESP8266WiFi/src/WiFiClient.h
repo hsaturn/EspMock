@@ -13,46 +13,10 @@ class WiFiClient : public Client
   public:
     uint8_t connected() override { return connected_; }
 
-    int connect(const char* host, uint16_t port) override
-    {
-      struct hostent* server;
-      if (connected()) close_();
-      portno = port;
-      sockfd = socket(AF_INET, SOCK_STREAM, 0);
-      if (sockfd <0) return false;
-      server = gethostbyname(host);
-      if (server == nullptr) return false;
+    int connect(const char* ip, uint16_t port) override;
 
-      struct sockaddr_in serv_addr;
-      bzero((char*)&serv_addr, sizeof(serv_addr));
-      serv_addr.sin_family = AF_INET;
-      bcopy((char*) server->h_addr,
-            (char*)&serv_addr.sin_addr.s_addr,
-            server->h_length);
-      serv_addr.sin_port = htons(portno);
-      if (::connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr))<0)
-        return false;
-      connected_ = true;
-      return true;
-    };
+    int connect(IPAddress ip, uint16_t port) override;
 
-    int connect(IPAddress ip, uint16_t port) override
-    {
-      if (connected()) close_();
-      portno = port;
-      sockfd = socket(AF_INET, SOCK_STREAM, 0);
-      if (sockfd <0) return false;
-
-      struct sockaddr_in serv_addr;
-      bzero((char*)&serv_addr, sizeof(serv_addr));
-      serv_addr.sin_family = AF_INET;
-      serv_addr.sin_port = htons(portno);
-      serv_addr.sin_addr.s_addr = (uint32_t)ip;
-      if (::connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr))<0)
-        return false;
-      connected_ = true;
-      return true;
-    }
     size_t write(uint8_t) override
     {
       Serial.println("NO IMPLEMENTED write(uint8_t)");
@@ -96,15 +60,3 @@ class WiFiClient : public Client
     bool connected_ = false;
 };
 
-class WiFiServer
-{
-  public:
-    WiFiServer(const unsigned int) {};
-    void begin() {};
-    int port() const { return port_; };
-    void close(){};
-    WiFiClient available() { return WiFiClient(); }
-
-  private:
-    int port_;
-};

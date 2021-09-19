@@ -1,27 +1,27 @@
 #include "ESP8266WiFi.h"
+#include <assert.h>
 
-std::set<uint8_t> ESP8266WiFiClass::ip_used;
 std::map<int, std::shared_ptr<ESP8266WiFiClass>> ESP8266WiFiClass::instances;
-std::map<IPAddress, std::shared_ptr<ESP8266WiFiClass>> ESP8266WiFiClass::network;
 int ESP8266WiFiClass::current_instance = 0;
 
-ESP8266WiFiClass WiFi;
+ESP8266WiFiProxy WiFi;
+static ESP8266WiFiClass _WiFi;
 
 void ESP8266WiFiClass::selectInstance(int n)
 {
+  // instance 0 is the global WiFi instance
+  // once we use many instances it becomes unusable
+  assert(n);
+
   if (n == current_instance) return;
 
-  if ((current_instance==0) and (instances.find(0) == instances.end()))
-  {
-    instances[0] = std::make_shared<ESP8266WiFiClass>();
-  }
-  *instances[current_instance] = WiFi;
+  // if (current_instance) *instances[current_instance] = WiFi;
 
   auto& instance = instances[n];
   if (instance == nullptr)
     instance = std::make_shared<ESP8266WiFiClass>();
 
-  WiFi = *instance;
+  // WiFi = *instance;
   
   current_instance = n;
 }
@@ -35,13 +35,8 @@ bool ESP8266WiFiClass::disconnect(bool wifioff)
 {
   if (status_ == WL_CONNECTED)
   {
-    uint8_t last = static_cast<uint32_t>(localIP()) & 0xFF;
-    ip_used.erase(last);
-    network.erase(ip_address_);
-
     status_ = WL_DISCONNECTED;
     if (wifioff) mode_ = WIFI_OFF;
-    ip_last = 0;
     ip_address_ = static_cast<uint32_t>(0);
     return true;
   }
@@ -57,14 +52,12 @@ wl_status_t ESP8266WiFiClass::begin(const char* /* ssid */, const char * /* pass
     uint8_t last=1;
     while(last<255)
     {
-      if (ip_used.count(last))
+      IPAddress ip(192,168,1,last);
+      if (getInstance(ip) != nullptr)
         last++;
       else
       {
-        uint8_t ip[4] = {192,168,1,last};
         ip_address_ = ip;
-        ip_used.insert(last);
-        ip_last = last;
         status_ = WL_CONNECTED;
         break;
       }
@@ -73,10 +66,71 @@ wl_status_t ESP8266WiFiClass::begin(const char* /* ssid */, const char * /* pass
   return status_;
 }
 
+void ESP8266WiFiClass::resetInstances()
+{
+  instances.clear();
+  current_instance = 0;
+}
 
 
 bool ESP8266WiFiClass::mode(WiFiMode_t m, WiFiState* /* state */)
 {
   mode_ = m;
   return true;
+}
+
+bool ESP8266WiFiClass::addListener(uint16_t port, WiFiServer* listener)
+{
+    if (isPortUsed(port)) return false;
+
+    listeners[port] = listener;
+    return true;
+}
+
+void ESP8266WiFiClass::removeListener(WiFiServer* listener)
+{
+    for(auto it: listeners)
+    {
+        if (it.second == listener)
+        {
+            listeners.erase(it.first);
+            break;
+        }
+    }
+}
+
+bool ESP8266WiFiClass::establishLink(uint16_t port, WiFiClient* client)
+{
+    for(auto it: listeners)
+    {
+        if (it.first == port)
+        {
+            it.second->_accept(client);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ESP8266WiFiClass::isPortUsed(uint16_t port)
+{
+    return listeners.find(port) != listeners.end();
+}
+
+std::shared_ptr<ESP8266WiFiClass> ESP8266WiFiClass::getInstance(const IPAddress& ip)
+{
+    for(auto wifi: instances)
+        if (wifi.second->ip_address_ == ip) return wifi.second;
+
+    return {};
+}
+
+std::shared_ptr<ESP8266WiFiClass> ESP8266WiFiClass::getInstance()
+{
+    if (current_instance == 0)
+    {
+        static std::shared_ptr<ESP8266WiFiClass> wifi(&_WiFi, [](ESP8266WiFiClass*){});
+        return wifi;
+    }
+    return instances[current_instance];
 }
