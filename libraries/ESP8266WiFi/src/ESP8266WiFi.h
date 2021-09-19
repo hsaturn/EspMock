@@ -51,7 +51,6 @@ class ESP8266WiFiClass
 
     static std::map<int, std::shared_ptr<ESP8266WiFiClass>> instances;
     static int current_instance;
-    // static std::shared_ptr<ESP8266WiFiClass> instance;
 
 };
 

@@ -21,7 +21,7 @@ void WiFiServer::begin(uint16_t port, uint8_t /* backlog */)
 
 void WiFiServer::_accept(WiFiClient* client)
 {
-    _unclaimed.push(client);
+    if (_state != CLOSED) _unclaimed.push(client);
 }
 
 bool WiFiServer::hasClient()

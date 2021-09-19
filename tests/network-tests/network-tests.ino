@@ -13,6 +13,16 @@ using namespace std;
 
 int i=0;
 
+void start_servers(int n)
+{
+    while(n)
+    {
+      ESP8266WiFiClass::selectInstance(n--);
+      WiFi.mode(WIFI_STA);
+      WiFi.begin("fake_ssid", "fake_pwd");
+    }
+}
+
 test(wifi_should_connect_on_fake_network)
 {
   WiFi.mode(WIFI_STA);
@@ -22,19 +32,18 @@ test(wifi_should_connect_on_fake_network)
   assertNotEqual(static_cast<uint32_t>(WiFi.localIP()), (uint32_t)0);
 }
 
-test(wifi_two_wifi_shouldnt_have_same_ip)
+test(wifi_two_esp_shouldnt_have_same_ip)
 {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin("fake_ssid", "fake_pwd");
+  start_servers(2);
+  ESP8266WiFiClass::selectInstance(1);
   assertEqual(WiFi.status(), WL_CONNECTED);
+  auto ip1 = WiFi.localIP().toString();
 
-  ESP8266WiFiClass esp2;
-  esp2.mode(WIFI_STA);
-  esp2.begin("fake_ssid", "fake_pwd");
-  assertEqual(esp2.status(), WL_CONNECTED);
+  ESP8266WiFiClass::selectInstance(2);
+  assertEqual(WiFi.status(), WL_CONNECTED);
+  auto ip2 = WiFi.localIP().toString();
 
-  assertNotEqual(WiFi.localIP(), esp2.localIP());
-
+  assertNotEqual(ip1, ip2);
 }
 
 test(wifi_should_be_wldisconnect_and_ip_unset_after_disconnection)
@@ -49,35 +58,71 @@ test(wifi_should_be_wldisconnect_and_ip_unset_after_disconnection)
   assertEqual(static_cast<uint32_t>(WiFi.localIP()), (uint32_t)0);
 }
 
-test(network_wificlient_should_return_connected_when_connected_byipaddress)
+test(network_one_esp_client_connects_to_server)
 {
-  // TODO this test is wrong because localhost does not always have a
-  // web server...We should create one before
-  // IPAddress ip{127,0,0,1}; TODO should work on local esp ?
-  ESP8266WiFiClass::selectInstance(1);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin("fake_ssid", "fake_pwd");
+  start_servers(1);
   IPAddress ip = WiFi.localIP();
+
   WiFiServer server(80);
   server.begin();
 
-  ESP8266WiFiClass::selectInstance(1);
   WiFiClient client;
   assertFalse(client.connected());
   client.connect(ip, 80);
   assertTrue(client.connected());
 }
 
+test(network_one_esp_cannot_connect_to_itself_with_127_0_0_1)
+{
+  // TODO verify that a real esp cannot connect to 127.0.0.1
+  start_servers(1);
+
+  WiFiServer server(80);
+  server.begin();
+
+  IPAddress localhost(127,0,0,1);
+  WiFiClient client;
+  assertFalse(client.connected());
+  client.connect(localhost, 80);
+  assertFalse(client.connected());
+}
+
+test(network_two_esp_client_connects_to_server)
+{
+  // IPAddress ip{127,0,0,1}; TODO should work on local esp ?
+  start_servers(2);
+  IPAddress ip = WiFi.localIP();
+
+  WiFiServer server(80);
+  server.begin();
+
+  ESP8266WiFiClass::selectInstance(2);
+  WiFiClient client;
+  assertFalse(client.connected());
+  client.connect(ip, 80);
+  assertTrue(client.connected());
+}
+
+test(network_should_not_be_able_to_connect_to_unstarted_server)
+{
+  start_servers(1);
+  IPAddress ip = WiFi.localIP();
+  WiFiServer server(80);
+  // --> no server.begin()
+
+  WiFiClient client;
+  assertFalse(client.connected());
+  client.connect(ip, 80);
+  assertFalse(client.connected());
+}
+
 test(network_simulate_two_esp_have_different_ip)
 {
+    start_servers(2);
     ESP8266WiFiClass::selectInstance(1);
-    WiFi.mode(WIFI_STA);
-    WiFi.begin("fake_ssid", "fake_pwd");
     IPAddress ip_1 = WiFi.localIP();
 
     ESP8266WiFiClass::selectInstance(2);
-    WiFi.mode(WIFI_STA);
-    WiFi.begin("fake_ssid", "fake_pwd");
     IPAddress ip_2 = WiFi.localIP();
 
     assertNotEqual(ip_1, ip_2);
@@ -86,26 +131,6 @@ test(network_simulate_two_esp_have_different_ip)
     ESP8266WiFiClass::selectInstance(1);
     IPAddress ip_11 = WiFi.localIP();
     assertEqual(ip_1, ip_11);
-}
-
-test(network_two_esp_communication)
-{
-    // 1 Connect two esp
-    ESP8266WiFiClass::selectInstance(1);
-    WiFi.mode(WIFI_STA);
-    WiFi.begin("fake_ssid", "fake_pwd");
-    IPAddress ip_1 = WiFi.localIP();
-
-    ESP8266WiFiClass::selectInstance(2);
-    WiFi.mode(WIFI_STA);
-    WiFi.begin("fake_ssid", "fake_pwd");
-    // IPAddress ip_2 = WiFi.localIP();
-
-    // Now connect two clients together
-    ESP8266WiFiClass::selectInstance(1);
-    WiFiClient client;
-    client.connect(ip_1, 1234);
-
 }
 
 test(network_wificlient_should_not_return_connected_when_not_connected)
