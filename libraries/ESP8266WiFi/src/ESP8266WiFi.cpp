@@ -5,13 +5,9 @@ std::map<int, std::shared_ptr<ESP8266WiFiClass>> ESP8266WiFiClass::instances;
 int ESP8266WiFiClass::current_instance = 0;
 
 ESP8266WiFiProxy WiFi;
-static ESP8266WiFiClass _WiFi;
 
 void ESP8266WiFiClass::selectInstance(int n)
 {
-  // instance 0 is the global _WiFi instance
-  assert(n);
-
   if (n == current_instance) return;
 
   if (instances.find(n) == instances.end())
@@ -93,17 +89,16 @@ void ESP8266WiFiClass::removeListener(WiFiServer* listener)
     }
 }
 
-bool ESP8266WiFiClass::establishLink(uint16_t port, WiFiClient* client)
+WiFiServer* ESP8266WiFiClass::establishLink(uint16_t port, WiFiClient* client)
 {
     for(auto it: listeners)
     {
-        if (it.first == port)
+        if (it.first == port and it.second->_accept(client))
         {
-            it.second->_accept(client);
-            return true;
+            return it.second;
         }
     }
-    return false;
+    return nullptr;
 }
 
 bool ESP8266WiFiClass::isPortUsed(uint16_t port)
@@ -121,10 +116,7 @@ std::shared_ptr<ESP8266WiFiClass> ESP8266WiFiClass::getInstance(const IPAddress&
 
 std::shared_ptr<ESP8266WiFiClass> ESP8266WiFiClass::getInstance()
 {
-    if (current_instance == 0)
-    {
-        static std::shared_ptr<ESP8266WiFiClass> wifi(&_WiFi, [](ESP8266WiFiClass*){});
-        return wifi;
-    }
+    if (current_instance == 0 and instances.find(0) == instances.end())
+        instances[0] = std::make_shared<ESP8266WiFiClass>();
     return instances[current_instance];
 }

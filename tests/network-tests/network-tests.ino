@@ -32,6 +32,15 @@ test(wifi_should_connect_on_fake_network)
   assertNotEqual(static_cast<uint32_t>(WiFi.localIP()), (uint32_t)0);
 }
 
+test(wifi_static_instance_is_part_of_map)
+{
+    WiFi.mode(WIFI_STA);
+    WiFi.begin("fake_ssid", "fake_pwd");
+
+    auto wifi = ESP8266WiFiClass::getInstance(WiFi.localIP());
+    assertTrue(wifi != nullptr);
+}
+
 test(wifi_two_esp_shouldnt_have_same_ip)
 {
   start_servers(2);
@@ -58,38 +67,8 @@ test(wifi_should_be_wldisconnect_and_ip_unset_after_disconnection)
   assertEqual(static_cast<uint32_t>(WiFi.localIP()), (uint32_t)0);
 }
 
-test(network_one_esp_client_connects_to_server)
-{
-  start_servers(1);
-  IPAddress ip = WiFi.localIP();
-
-  WiFiServer server(80);
-  server.begin();
-
-  WiFiClient client;
-  assertFalse(client.connected());
-  client.connect(ip, 80);
-  assertTrue(client.connected());
-}
-
-test(network_one_esp_cannot_connect_to_itself_with_127_0_0_1)
-{
-  // TODO verify that a real esp cannot connect to 127.0.0.1
-  start_servers(1);
-
-  WiFiServer server(80);
-  server.begin();
-
-  IPAddress localhost(127,0,0,1);
-  WiFiClient client;
-  assertFalse(client.connected());
-  client.connect(localhost, 80);
-  assertFalse(client.connected());
-}
-
 test(network_two_esp_client_connects_to_server)
 {
-  // IPAddress ip{127,0,0,1}; TODO should work on local esp ?
   start_servers(2);
   IPAddress ip = WiFi.localIP();
 
@@ -100,19 +79,62 @@ test(network_two_esp_client_connects_to_server)
   WiFiClient client;
   assertFalse(client.connected());
   client.connect(ip, 80);
+
+  // Link not established yet
+  assertFalse(client.connected());
+
+  // establish link
+  WiFiClient link = server.available();
   assertTrue(client.connected());
+
 }
 
-test(network_should_not_be_able_to_connect_to_unstarted_server)
+test(network_one_esp_cannot_connect_to_itself_with_127_0_0_1)
+{
+  start_servers(1);
+
+  WiFiServer server(80);
+  server.begin();
+
+  WiFiClient client;
+  assertFalse(client.connected());
+  client.connect(WiFi.localIP(), 80);
+  assertFalse(client.connected());
+}
+
+test(network_one_esp_cannot_connect_to_itself_with_its_ip)
 {
   start_servers(1);
   IPAddress ip = WiFi.localIP();
+
   WiFiServer server(80);
-  // --> no server.begin()
+  server.begin();
 
   WiFiClient client;
   assertFalse(client.connected());
   client.connect(ip, 80);
+
+  // Link not established yet
+  assertFalse(client.connected());
+
+  // Establish link
+  server.available();
+  // But ESP cannot connect to itself so...
+  assertFalse(client.connected());
+}
+
+test(network_should_not_be_able_to_connect_to_unstarted_server)
+{
+  start_servers(2);
+  IPAddress ip = WiFi.localIP();
+  WiFiServer server(80);
+  // --> no server.begin()
+
+  ESP8266WiFiClass::selectInstance(2);
+  WiFiClient client;
+  assertFalse(client.connected());
+  client.connect(ip, 80);
+  server.available();
   assertFalse(client.connected());
 }
 
@@ -131,14 +153,6 @@ test(network_simulate_two_esp_have_different_ip)
     ESP8266WiFiClass::selectInstance(1);
     IPAddress ip_11 = WiFi.localIP();
     assertEqual(ip_1, ip_11);
-}
-
-test(network_wificlient_should_not_return_connected_when_not_connected)
-{
-    WiFiClient client;
-    assertFalse(client.connected());
-    client.connect("cannot-connect-there-because-of-wrong-domain.com", 1234);
-    assertFalse(client.connected());
 }
 
 void setup()

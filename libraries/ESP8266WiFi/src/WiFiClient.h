@@ -7,11 +7,16 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <Client.h>
+#include <queue>
+#include <memory>
+
+class WiFiServer;
+class ESP8266WiFiClass;
 
 class WiFiClient : public Client
 {
   public:
-    uint8_t connected() override { return connected_; }
+    uint8_t connected() override { return connected_ != nullptr; }
 
     int connect(const char* ip, uint16_t port) override;
 
@@ -25,38 +30,36 @@ class WiFiClient : public Client
     size_t write(const char* buffer, size_t length)
     { return write((uint8_t*)buffer, length); }
 
-    size_t write(const uint8_t* buffer, size_t length) override
-    {
-      if (!connected_) return 0;
-      ssize_t n = ::write(sockfd, buffer, length);
-      if (n < 0) return 0;
-      return (size_t)n;
-    };
+    size_t write(const uint8_t* buffer, size_t length) override;
     void flush() override { Serial.println("NYI flush"); };
     int peek() override { Serial.println("NYI peek"); return 0; }
-    void stop() {};
-    int available() override
-    {
-      if (!connected()) return 0;
-      int value; if (ioctl(sockfd, FIONREAD, &value)==-1) return 0;
-      return value;
-    }
+    void stop() { _close(); };
+    int available() override { return buffer.size(); }
 
     operator bool() override { return available() or connected(); }
 
-    int read() { return 0; };
+    int read();
 
     operator bool() const { return false; };
 
-    virtual ~WiFiClient(){ /* don't close since I think Esp lib does not closes too */ };
+    WiFiClient();
+    virtual ~WiFiClient();
 
   private:
-    void close_()
-    {
-      if (!connected_) return;
-      connected_ = false;
-    };
-    int sockfd, portno;
-    bool connected_ = false;
+    void _incoming(const uint8_t* buffer, size_t length);
+    void _connected(WiFiClient* conn);
+
+    friend class WiFiServer;
+    // emulation
+    void _close(WiFiServer*); // server destroyed or closes link
+
+  private:
+    std::shared_ptr<ESP8266WiFiClass> wifi;
+
+    void _close();
+    int portno;
+    WiFiClient* connected_ = nullptr;
+    bool connecting_ = false;
+    std::queue<uint8_t> buffer;
 };
 

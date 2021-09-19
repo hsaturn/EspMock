@@ -37,7 +37,7 @@ class ESP8266WiFiClass
 
     bool isPortUsed(uint16_t port);
 
-    bool establishLink(uint16_t port, WiFiClient*);
+    WiFiServer* establishLink(uint16_t port, WiFiClient*);
 
   private:
     friend class WiFiServer;

@@ -19,9 +19,14 @@ void WiFiServer::begin(uint16_t port, uint8_t /* backlog */)
     }
 }
 
-void WiFiServer::_accept(WiFiClient* client)
+bool WiFiServer::_accept(WiFiClient* client)
 {
-    if (_state != CLOSED) _unclaimed.push(client);
+    if (_state == LISTEN or _state == ESTABLISHED)
+    {
+      _unclaimed.push_back(client);
+      return true;
+    }
+    return false;
 }
 
 bool WiFiServer::hasClient()
@@ -33,7 +38,12 @@ WiFiClient WiFiServer::available(byte* /* status */)
 {
     if (_unclaimed.size())
     {
-        WiFiClient* result = _unclaimed.front();
+        WiFiClient* client = _unclaimed.front();
+        WiFiClient* result = new WiFiClient;
+        client->_connected(result);
+        result->_connected(client);
+
+        _unclaimed.pop_front();
         return *result;
     }
 
@@ -43,12 +53,21 @@ WiFiClient WiFiServer::available(byte* /* status */)
 void WiFiServer::close()
 {
     wifi->removeListener(this);
-    _unclaimed = std::queue<WiFiClient*>();
+    _unclaimed.clear();
     _state = CLOSED;
+    if (established_) delete established_;
+    established_ = nullptr;
 }
 
-void WiFiServer::stop() {
+void WiFiServer::stop()
+{
     close();
+}
+
+void WiFiServer::_close(WiFiClient* client)
+{
+  _state = LISTEN;
+  _unclaimed.remove(client);
 }
 
 size_t WiFiServer::write(uint8_t b) {

@@ -2,7 +2,7 @@
 
 #include <wl_definitions.h>
 
-#include <queue>
+#include <list>
 #include <memory>
 
 class WiFiClient;
@@ -26,11 +26,18 @@ public:
   void stop();
 
   // emulation
-  void _accept(WiFiClient*);
+private:
+  friend class WiFiClient;
+  friend class ESP8266WiFiClass;
+
+  bool _accept(WiFiClient*);
+  void _close(WiFiClient*); // client destroyed or closes link
 
 private:
-  std::queue<WiFiClient*> _unclaimed;
-  uint16_t _port;
   std::shared_ptr<ESP8266WiFiClass> wifi;
+
+  std::list<WiFiClient*> _unclaimed;
+  uint16_t _port;
   uint8_t _state = CLOSED;
+  WiFiClient* established_ = nullptr;
 };
