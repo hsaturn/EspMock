@@ -15,6 +15,7 @@ int i=0;
 
 void start_servers(int n)
 {
+    ESP8266WiFiClass::resetInstances();
     while(n)
     {
       ESP8266WiFiClass::selectInstance(n--);
@@ -41,7 +42,32 @@ test(wifi_static_instance_is_part_of_map)
     assertTrue(wifi != nullptr);
 }
 
-test(wifi_two_esp_shouldnt_have_same_ip)
+test(network_one_esp_cannot_bind_same_port_twice)
+{
+    start_servers(1);
+    WiFiServer server(80);
+    server.begin();
+    assertEqual(server.status(), LISTEN);
+
+    WiFiServer wrong(80);
+    wrong.begin();
+    assertNotEqual(wrong.status(), LISTEN);
+}
+
+test(network_two_esp_can_bind_same_port_twice)
+{
+    start_servers(2);
+    WiFiServer server(80);
+    server.begin();
+    assertEqual(server.status(), LISTEN);
+
+    ESP8266WiFiClass::selectInstance(2);
+    WiFiServer wrong(80);
+    wrong.begin();
+    assertEqual(wrong.status(), LISTEN);
+}
+
+test(network_two_esp_shouldnt_have_same_ip)
 {
   start_servers(2);
   ESP8266WiFiClass::selectInstance(1);
