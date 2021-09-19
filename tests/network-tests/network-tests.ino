@@ -162,10 +162,16 @@ test(network_two_esp_send_and_receive_bytes)
   WiFiClient link = server.available();
   assertTrue(link.connected());
 
-  std::string buffer="abcd";
-  client.write(&buffer[0], buffer.size());
+  std::string sent ="abcd";
+  client.write(&sent[0], sent.size());
 
   assertTrue(link.available());
+
+  std::string received;
+  while(link.available())
+      received += link.read();
+
+  assertEqual(sent.c_str(), received.c_str());
 }
 
 test(network_two_esp_client_connects_to_server)
