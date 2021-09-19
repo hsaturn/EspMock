@@ -16,7 +16,7 @@ class ESP8266WiFiClass;
 class WiFiClient : public Client
 {
   public:
-    uint8_t connected() override { return connected_ != nullptr; }
+    uint8_t connected() override { return data->connected_ != nullptr; }
 
     int connect(const char* ip, uint16_t port) override;
 
@@ -34,7 +34,7 @@ class WiFiClient : public Client
     void flush() override { Serial.println("NYI flush"); };
     int peek() override { Serial.println("NYI peek"); return 0; }
     void stop() { _close(); };
-    int available() override { return buffer.size(); }
+    int available() override { return data->buffer.size(); }
 
     operator bool() override { return available() or connected(); }
 
@@ -46,21 +46,27 @@ class WiFiClient : public Client
     virtual ~WiFiClient();
 
   private:
-    WiFiClient(WiFiClient* link);
+    friend class WiFiServer;
+
+    WiFiClient(WiFiClient* link, std::shared_ptr<ESP8266WiFiClass> wifi);
+  
     void _incoming(const uint8_t* buffer, size_t length);
     void _establish_link(WiFiClient* conn);
 
-    friend class WiFiServer;
-    // emulation
     void _close(WiFiServer*); // server destroyed or closes link
+    void _close();
 
   private:
-    std::shared_ptr<ESP8266WiFiClass> wifi;
 
-    void _close();
-    int portno;
-    WiFiClient* connected_ = nullptr;
-    bool connecting_ = false;
-    std::queue<uint8_t> buffer;
+    struct Data
+    {
+      std::shared_ptr<ESP8266WiFiClass> wifi;
+
+      int portno;
+      WiFiClient* connected_ = nullptr;
+      bool connecting_ = false;
+      std::queue<uint8_t> buffer;
+    };
+    std::shared_ptr<Data> data;
 };
 

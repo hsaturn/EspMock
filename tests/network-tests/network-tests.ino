@@ -1,6 +1,7 @@
 // vim: ts=2 sw=2 expandtab
 #include <AUnit.h>
 #include <ESP8266WiFi.h>
+#include <string>
 
 /**
   * EspMock netword unit tests.
@@ -141,6 +142,30 @@ test(network_two_esp_server_early_accept)
 
   // Link already established with early_connect
   assertTrue(client.connected());
+}
+
+test(network_two_esp_send_and_receive_bytes)
+{
+  start_servers(2, true);
+  IPAddress ip = WiFi.localIP();
+
+  WiFiServer server(80);
+  server.begin();
+
+  ESP8266WiFiClass::selectInstance(2);
+  WiFiClient client;
+  assertFalse(client.connected());
+  client.connect(ip, 80);
+
+  assertTrue(client.connected());
+
+  WiFiClient link = server.available();
+  assertTrue(link.connected());
+
+  std::string buffer="abcd";
+  client.write(&buffer[0], buffer.size());
+
+  assertTrue(link.available());
 }
 
 test(network_two_esp_client_connects_to_server)
