@@ -48,5 +48,5 @@ private:
   // a WiFiClient to a WiFiServer in monothread context. Without that
   // the WiFiClient::connect, can never connect because ::available() is
   // not called.
-  bool early_accept = false;
+  bool early_accept;
 };

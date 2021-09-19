@@ -36,10 +36,12 @@ class ESP8266WiFiClass
     static std::shared_ptr<ESP8266WiFiClass> getInstance();
 
     bool isPortUsed(uint16_t port);
-
     WiFiServer* establishLink(uint16_t port, WiFiClient*);
 
+    static bool earlyAccept;
+
   private:
+
     friend class WiFiServer;
     bool addListener(uint16_t port, WiFiServer*);
     void removeListener(WiFiServer*);
@@ -66,5 +68,4 @@ class ESP8266WiFiProxy
     private:
       std::shared_ptr<ESP8266WiFiClass> wifi() const { return ESP8266WiFiClass::getInstance(); }
 };
-
 extern ESP8266WiFiProxy WiFi;

@@ -3,6 +3,7 @@
 
 std::map<int, std::shared_ptr<ESP8266WiFiClass>> ESP8266WiFiClass::instances;
 int ESP8266WiFiClass::current_instance = 0;
+bool ESP8266WiFiClass::earlyAccept = false;
 
 ESP8266WiFiProxy WiFi;
 

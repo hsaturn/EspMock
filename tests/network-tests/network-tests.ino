@@ -13,9 +13,10 @@ using namespace std;
 
 int i=0;
 
-void start_servers(int n)
+void start_servers(int n, bool early_accept = false)
 {
     ESP8266WiFiClass::resetInstances();
+    ESP8266WiFiClass::earlyAccept = early_accept;
     while(n)
     {
       ESP8266WiFiClass::selectInstance(n--);
@@ -26,6 +27,7 @@ void start_servers(int n)
 
 test(wifi_should_connect_on_fake_network)
 {
+  start_servers(0);
   WiFi.mode(WIFI_STA);
   WiFi.begin("fake_ssid", "fake_pwd");
 
@@ -35,6 +37,7 @@ test(wifi_should_connect_on_fake_network)
 
 test(wifi_static_instance_is_part_of_map)
 {
+  start_servers(0);
     WiFi.mode(WIFI_STA);
     WiFi.begin("fake_ssid", "fake_pwd");
 
@@ -93,6 +96,7 @@ test(network_two_esp_shouldnt_have_same_ip)
 
 test(wifi_should_be_wldisconnect_and_ip_unset_after_disconnection)
 {
+  start_servers(0);
   WiFi.mode(WIFI_STA);
   WiFi.begin("fake_ssid", "fake_pwd");
   WiFi.disconnect();
@@ -101,6 +105,24 @@ test(wifi_should_be_wldisconnect_and_ip_unset_after_disconnection)
   // EpoxyDuino has no implementation of IPAddress::isSet()
   // so we assume that 0 is an unset ip
   assertEqual(static_cast<uint32_t>(WiFi.localIP()), (uint32_t)0);
+}
+
+test(network_two_esp_global_early_accept)
+{
+  start_servers(2, true);
+  IPAddress ip = WiFi.localIP();
+
+  WiFiServer server(80);
+  server.begin();
+  server.earlyAccept(true);
+
+  ESP8266WiFiClass::selectInstance(2);
+  WiFiClient client;
+  assertFalse(client.connected());
+  client.connect(ip, 80);
+
+  // Link already established with early_connect
+  assertTrue(client.connected());
 }
 
 test(network_two_esp_server_early_accept)

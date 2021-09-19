@@ -5,6 +5,7 @@
 WiFiServer::WiFiServer(uint16_t port) : _port(port)
 {
     wifi = ESP8266WiFiClass::getInstance();
+    early_accept = ESP8266WiFiClass::earlyAccept;
 }
 
 void WiFiServer::earlyAccept(bool early)
