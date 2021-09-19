@@ -9,20 +9,14 @@ static ESP8266WiFiClass _WiFi;
 
 void ESP8266WiFiClass::selectInstance(int n)
 {
-  // instance 0 is the global WiFi instance
-  // once we use many instances it becomes unusable
+  // instance 0 is the global _WiFi instance
   assert(n);
 
   if (n == current_instance) return;
 
-  // if (current_instance) *instances[current_instance] = WiFi;
+  if (instances.find(n) == instances.end())
+      instances[n] = std::make_shared<ESP8266WiFiClass>();
 
-  auto& instance = instances[n];
-  if (instance == nullptr)
-    instance = std::make_shared<ESP8266WiFiClass>();
-
-  // WiFi = *instance;
-  
   current_instance = n;
 }
 
