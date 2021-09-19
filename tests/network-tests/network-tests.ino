@@ -67,6 +67,16 @@ test(network_two_esp_can_bind_same_port_twice)
     assertEqual(wrong.status(), LISTEN);
 }
 
+test(network_one_esp_server_do_not_listen_after_close)
+{
+    start_servers(1);
+    WiFiServer server(80);
+    server.begin();
+    assertEqual(server.status(), LISTEN);
+    server.stop();
+    assertNotEqual(server.status(), LISTEN);
+}
+
 test(network_two_esp_shouldnt_have_same_ip)
 {
   start_servers(2);
