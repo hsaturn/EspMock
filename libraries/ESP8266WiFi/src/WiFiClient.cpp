@@ -17,7 +17,7 @@ int WiFiClient::connect(const char* sip, uint16_t port)
 
 void WiFiClient::_close()
 {
-    if (connected_) connected_->_connected(nullptr);
+    if (connected_) connected_->_establish_link(nullptr);
     connected_ = nullptr;
     buffer = decltype(buffer)();
 }
@@ -33,6 +33,12 @@ int WiFiClient::read()
     return result;
 }
 
+WiFiClient::WiFiClient(WiFiClient* link)
+{
+    connected_ = link;
+    link->_establish_link(this);
+}
+
 WiFiClient::~WiFiClient()
 {
   /** we should don't close since I think Esp lib does not closes too
@@ -40,7 +46,7 @@ WiFiClient::~WiFiClient()
   _close();
 }
 
-void WiFiClient::_connected(WiFiClient* client)
+void WiFiClient::_establish_link(WiFiClient* client)
 {
     if (connecting_ == false) return;
     connecting_ = false;

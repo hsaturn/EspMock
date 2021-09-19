@@ -162,6 +162,28 @@ test(network_two_esp_client_connects_to_server)
   // establish link
   WiFiClient link = server.available();
   assertTrue(client.connected());
+  assertTrue(link.connected());
+}
+
+test(network_two_esp_available_with_late_early_connect)
+{
+  start_servers(2, false);
+  IPAddress ip = WiFi.localIP();
+
+  WiFiServer server(80);
+  server.begin();
+
+  ESP8266WiFiClass::selectInstance(2);
+  WiFiClient client;
+  client.connect(ip, 80);
+
+  // Link not established yet
+  assertFalse(client.connected());
+  server.earlyAccept(true);
+
+  // establish link
+  WiFiClient link = server.available();
+  assertTrue(link.connected());
 }
 
 test(network_one_esp_cannot_connect_to_itself_with_127_0_0_1)

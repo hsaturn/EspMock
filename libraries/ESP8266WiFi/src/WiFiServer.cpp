@@ -15,9 +15,7 @@ void WiFiServer::earlyAccept(bool early)
     {
         for(WiFiClient* unclaimed: _unclaimed)
         {
-            WiFiClient* early_client = new WiFiClient;
-            early_client->_connected(unclaimed);
-            unclaimed->_connected(early_client);
+            _early_accepted.push_front(new WiFiClient(unclaimed));
         }
         _unclaimed.clear();
     }
@@ -42,9 +40,7 @@ bool WiFiServer::_accept(WiFiClient* client)
     {
       if (early_accept)
       {
-          WiFiClient* early = new WiFiClient;
-          early->_connected(client);
-          client->_connected(early);
+          WiFiClient* early = new WiFiClient(client);
           _early_accepted.push_back(early);
       }
       else
@@ -73,9 +69,7 @@ WiFiClient WiFiServer::available(byte* /* status */)
     if (_unclaimed.size())
     {
         WiFiClient* client = _unclaimed.front();
-        WiFiClient* result = new WiFiClient;
-        client->_connected(result);
-        result->_connected(client);
+        WiFiClient* result = new WiFiClient(client);
 
         _unclaimed.pop_front();
         return *result;

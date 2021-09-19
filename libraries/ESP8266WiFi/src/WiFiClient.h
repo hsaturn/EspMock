@@ -46,8 +46,9 @@ class WiFiClient : public Client
     virtual ~WiFiClient();
 
   private:
+    WiFiClient(WiFiClient* link);
     void _incoming(const uint8_t* buffer, size_t length);
-    void _connected(WiFiClient* conn);
+    void _establish_link(WiFiClient* conn);
 
     friend class WiFiServer;
     // emulation
