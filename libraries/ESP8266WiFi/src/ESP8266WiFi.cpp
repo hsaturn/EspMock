@@ -1,5 +1,6 @@
 #include "ESP8266WiFi.h"
 #include <assert.h>
+#include <algorithm>
 
 std::map<int, std::shared_ptr<ESP8266WiFiClass>> ESP8266WiFiClass::instances;
 int ESP8266WiFiClass::current_instance = 0;

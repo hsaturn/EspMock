@@ -9,9 +9,28 @@
 #include <Client.h>
 #include <queue>
 #include <memory>
+#include <functional>
+#include <list>
 
 class WiFiServer;
+class WiFiClient;
 class ESP8266WiFiClass;
+
+class NetworkObserver
+{
+  public:
+    using callback = std::function<void(const WiFiClient*, const uint8_t* buffer, size_t length)>;
+    NetworkObserver(callback);
+    ~NetworkObserver();
+
+    void notify(const WiFiClient* client, const uint8_t* buffer, size_t length)
+    {
+      cb_(client, buffer, length);
+    }
+
+  private:
+    callback cb_;
+};
 
 class WiFiClient : public Client
 {
@@ -45,8 +64,11 @@ class WiFiClient : public Client
     WiFiClient();
     virtual ~WiFiClient();
 
+    static void addObserver(NetworkObserver* observer) { observers.push_back(observer); }
+
   private:
     friend class WiFiServer;
+    friend class NetworkObserver;
 
     WiFiClient(WiFiClient* link, std::shared_ptr<ESP8266WiFiClass> wifi);
   
@@ -55,6 +77,8 @@ class WiFiClient : public Client
 
     void _close(WiFiServer*); // server destroyed or closes link
     void _close();
+
+    static void unregister(NetworkObserver*);
 
   private:
 
@@ -68,5 +92,7 @@ class WiFiClient : public Client
       std::queue<uint8_t> buffer;
     };
     std::shared_ptr<Data> data;
+
+    static std::list<NetworkObserver*> observers;
 };
 

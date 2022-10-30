@@ -34,6 +34,7 @@ class ESP8266WiFiClass
 
     static std::shared_ptr<ESP8266WiFiClass> getInstance(const IPAddress& ip);
     static std::shared_ptr<ESP8266WiFiClass> getInstance();
+    static int getInstanceNumber() { return current_instance; };
 
     bool isPortUsed(uint16_t port);
     WiFiServer* establishLink(uint16_t port, WiFiClient*);

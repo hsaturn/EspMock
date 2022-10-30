@@ -2,6 +2,26 @@
 #include <WiFiServer.h>
 #include <ESP8266WiFi.h>
 
+std::list<NetworkObserver*> WiFiClient::observers;
+
+NetworkObserver::NetworkObserver(NetworkObserver::callback cb)
+: cb_(cb)
+{
+  WiFiClient::addObserver(this);
+}
+
+NetworkObserver::~NetworkObserver()
+{
+  WiFiClient::unregister(this);
+}
+
+void WiFiClient::unregister(NetworkObserver* observer)
+{
+  auto it = std::find(observers.begin(), observers.end(), observer);
+  if (it != observers.end())
+    observers.erase(it);
+}
+
 WiFiClient::WiFiClient()
 {
     data = std::make_shared<Data>();
@@ -83,6 +103,8 @@ size_t WiFiClient::write(const uint8_t* buffer, size_t length)
 {
     if (data->connected_ == nullptr) return 0;
     data->connected_->_incoming(buffer, length);
+    for(auto observer: observers)
+      observer->notify(this, buffer, length);
     return length;
 }
 

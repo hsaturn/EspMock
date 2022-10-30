@@ -283,6 +283,34 @@ test(network_simulate_two_esp_have_different_ip)
     assertEqual(ip_1, ip_11);
 }
 
+test(write_observer)
+{
+  char buffer[128];
+  size_t buffsize;
+  start_servers(2, true);
+  IPAddress ip = WiFi.localIP();
+
+  WiFiServer server(80);
+  server.begin();
+  server.earlyAccept(true);
+
+  ESP8266WiFiClass::selectInstance(2);
+  WiFiClient client;
+  client.connect(ip, 80);
+  assertTrue(client.connected());
+
+  NetworkObserver observer([&buffer, &buffsize](const WiFiClient*, const uint8_t* incoming, size_t length)
+  {
+    memcpy(buffer, incoming, length);
+    buffsize = length;
+  });
+
+  const char* sent("abcd");
+  client.write(sent, 4);
+  assertEqual(4, (int)buffsize);
+  assertEqual(memcmp(sent, buffer, 4), 0);
+}
+
 void setup()
 {
     ESP8266WiFiClass::resetInstances();
