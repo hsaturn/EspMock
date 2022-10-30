@@ -66,9 +66,9 @@ test(network_two_esp_can_bind_same_port_twice)
     assertEqual(server.status(), LISTEN);
 
     ESP8266WiFiClass::selectInstance(2);
-    WiFiServer wrong(80);
-    wrong.begin();
-    assertEqual(wrong.status(), LISTEN);
+    WiFiServer server2(80);
+    server2.begin();
+    assertEqual(server2.status(), LISTEN);
 }
 
 test(network_one_esp_server_do_not_listen_after_close)
