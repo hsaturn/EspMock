@@ -11,6 +11,13 @@
 
 class WiFiServer;
 
+enum class DNSResolveType: uint8_t
+{
+    DNS_AddrType_IPv4 = 0,  // LWIP_DNS_ADDRTYPE_IPV4 = 0
+    DNS_AddrType_IPv6,    // LWIP_DNS_ADDRTYPE_IPV6 = 1
+    DNS_AddrType_IPv4_IPv6, // LWIP_DNS_ADDRTYPE_IPV4_IPV6 = 2
+    DNS_AddrType_IPv6_IPv4  // LWIP_DNS_ADDRTYPE_IPV6_IPV4 = 3
+};
 
 class ESP8266WiFiClass
 {
@@ -39,6 +46,25 @@ class ESP8266WiFiClass
     bool isPortUsed(uint16_t port);
     WiFiServer* establishLink(uint16_t port, WiFiClient*);
 
+    // From ESP8266WiFiGeneric.h, implemented as stubs only.
+    int hostByName(const char* aHostname, IPAddress& aResult) {
+      return hostByName(aHostname, aResult, 10000);
+    }
+    int hostByName(
+        const char* /*aHostname*/,
+        IPAddress& /*aResult*/,
+        uint32_t /*timeout_ms*/) {
+      return 1;
+    }
+    int hostByName(
+        const char* /*aHostname*/,
+        IPAddress& /*aResult*/,
+        uint32_t /*timeout_ms*/,
+        DNSResolveType /*resolveType*/) {
+      return 1;
+    }
+  public:
+
     static bool earlyAccept;
 
   private:
@@ -65,6 +91,23 @@ class ESP8266WiFiProxy
     bool disconnect(bool wifioff=false) { return wifi()->disconnect(wifioff); }
     WiFiMode_t getMode() { return wifi()->getMode(); }
     IPAddress localIP() { return wifi()->localIP(); }
+
+    int hostByName(const char* aHostname, IPAddress& aResult) {
+      return wifi()->hostByName(aHostname, aResult);
+    }
+    int hostByName(
+        const char* aHostname,
+        IPAddress& aResult,
+        uint32_t timeout_ms) {
+      return wifi()->hostByName(aHostname, aResult, timeout_ms);
+    }
+    int hostByName(
+        const char* aHostname,
+        IPAddress& aResult,
+        uint32_t timeout_ms,
+        DNSResolveType resolveType) {
+      return wifi()->hostByName(aHostname, aResult, timeout_ms, resolveType);
+    }
 
     private:
       std::shared_ptr<ESP8266WiFiClass> wifi() const { return ESP8266WiFiClass::getInstance(); }
