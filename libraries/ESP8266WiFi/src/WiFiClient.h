@@ -52,12 +52,12 @@ class WiFiClient : public Client
     size_t write(const uint8_t* buffer, size_t length) override;
     void flush() override { Serial.println("NYI flush"); };
     int peek() override { Serial.println("NYI peek"); return 0; }
-    void stop() { _close(); };
+    void stop() override { _close(); };
     int available() override { return data->buffer.size(); }
 
     operator bool() override { return available() or connected(); }
 
-    int read();
+    int read() override;
 
     operator bool() const { return false; };
 
