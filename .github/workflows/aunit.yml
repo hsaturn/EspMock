@@ -9,10 +9,11 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    # https://github.com/actions/checkout
+    - uses: actions/checkout@v3
 
     - name: Setup
       run: |
@@ -21,6 +22,7 @@ jobs:
         git clone https://github.com/bxparks/AceRoutine
         git clone https://github.com/bxparks/AUnit
         git clone https://github.com/bxparks/AceCommon
+
     - name: Verify tests
       run: |
         make -C tests
