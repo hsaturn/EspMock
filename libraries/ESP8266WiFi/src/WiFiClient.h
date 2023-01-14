@@ -86,10 +86,10 @@ class WiFiClient : public Client
     {
       std::shared_ptr<ESP8266WiFiClass> wifi;
 
-      int portno;
+      int portno=0;
       WiFiClient* connected_ = nullptr;
       bool connecting_ = false;
-      std::queue<uint8_t> buffer;
+      std::queue<uint8_t> buffer{};
     };
     std::shared_ptr<Data> data;
 

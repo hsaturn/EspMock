@@ -74,7 +74,7 @@ class ESP8266WiFiClass
     void removeListener(WiFiServer*);
 
     std::map<uint16_t, WiFiServer*> listeners;
-    wl_status_t status_;
+    wl_status_t status_ = WL_IDLE_STATUS;
     WiFiMode_t mode_ = WIFI_OFF;
     IPAddress ip_address_;
 

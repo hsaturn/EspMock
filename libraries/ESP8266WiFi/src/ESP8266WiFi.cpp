@@ -19,6 +19,7 @@ void ESP8266WiFiClass::selectInstance(int n)
 }
 
 ESP8266WiFiClass::ESP8266WiFiClass()
+  : status_(WL_IDLE_STATUS)
 {
   disconnect();
 }
@@ -120,5 +121,6 @@ std::shared_ptr<ESP8266WiFiClass> ESP8266WiFiClass::getInstance()
 {
     if (current_instance == 0 and instances.find(0) == instances.end())
         instances[0] = std::make_shared<ESP8266WiFiClass>();
+    assert(current_instance >= 0);
     return instances[current_instance];
 }
