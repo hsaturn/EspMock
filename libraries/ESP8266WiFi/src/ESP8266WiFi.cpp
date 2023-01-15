@@ -2,18 +2,29 @@
 #include <assert.h>
 #include <algorithm>
 
-std::map<int, std::shared_ptr<ESP8266WiFiClass>> ESP8266WiFiClass::instances;
+std::unique_ptr<ESP8266WiFiClass::Container>  ESP8266WiFiClass::instances{};
 int ESP8266WiFiClass::current_instance = 0;
 bool ESP8266WiFiClass::earlyAccept = false;
 
 ESP8266WiFiProxy WiFi;
 
+void ESP8266WiFiClass::init()
+{
+  if (not instances)
+  {
+    instances = std::unique_ptr<Container>(new Container);
+    current_instance = 0;
+    earlyAccept = false;
+  }
+}
+
 void ESP8266WiFiClass::selectInstance(int n)
 {
+  init();
   if (n == current_instance) return;
 
-  if (instances.find(n) == instances.end())
-      instances[n] = std::make_shared<ESP8266WiFiClass>();
+  if (instances->find(n) == instances->end())
+      (*instances)[n] = std::make_shared<ESP8266WiFiClass>();
 
   current_instance = n;
 }
@@ -61,7 +72,8 @@ wl_status_t ESP8266WiFiClass::begin(const char* /* ssid */, const char * /* pass
 
 void ESP8266WiFiClass::resetInstances()
 {
-  instances.clear();
+  init();
+  instances->clear();
   current_instance = 0;
 }
 
@@ -111,7 +123,8 @@ bool ESP8266WiFiClass::isPortUsed(uint16_t port)
 
 std::shared_ptr<ESP8266WiFiClass> ESP8266WiFiClass::getInstance(const IPAddress& ip)
 {
-    for(auto wifi: instances)
+    init();
+    for(auto wifi: *instances)
         if (wifi.second->ip_address_ == ip) return wifi.second;
 
     return {};
@@ -119,8 +132,9 @@ std::shared_ptr<ESP8266WiFiClass> ESP8266WiFiClass::getInstance(const IPAddress&
 
 std::shared_ptr<ESP8266WiFiClass> ESP8266WiFiClass::getInstance()
 {
-    if (current_instance == 0 and instances.find(0) == instances.end())
-        instances[0] = std::make_shared<ESP8266WiFiClass>();
+    init();
+    if (current_instance == 0 and instances->find(0) == instances->end())
+        (*instances)[0] = std::make_shared<ESP8266WiFiClass>();
     assert(current_instance >= 0);
-    return instances[current_instance];
+    return (*instances)[current_instance];
 }

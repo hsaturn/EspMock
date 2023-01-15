@@ -68,6 +68,7 @@ class ESP8266WiFiClass
     static bool earlyAccept;
 
   private:
+    static void init();
 
     friend class WiFiServer;
     bool addListener(uint16_t port, WiFiServer*);
@@ -78,7 +79,9 @@ class ESP8266WiFiClass
     WiFiMode_t mode_ = WIFI_OFF;
     IPAddress ip_address_;
 
-    static std::map<int, std::shared_ptr<ESP8266WiFiClass>> instances;
+    using Container = std::map<int, std::shared_ptr<ESP8266WiFiClass>>;
+
+    static std::unique_ptr<Container> instances;
     static int current_instance;
 };
 
