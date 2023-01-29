@@ -8,4 +8,5 @@ APP_NAME := network-tests
 ARDUINO_LIBS := AUnit ESP8266WiFi TinyConsole
 ARDUINO_LIB_DIRS := ../../libraries
 EPOXY_CORE := EPOXY_CORE_ESP8266
-include ../../../EpoxyDuino/EpoxyDuino.mk
+
+include ../next.mk
