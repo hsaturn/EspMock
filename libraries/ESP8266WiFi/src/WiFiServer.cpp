@@ -57,7 +57,12 @@ bool WiFiServer::hasClient()
     return _unclaimed.size();
 }
 
-WiFiClient WiFiServer::available(byte* /* status */)
+WiFiClient WiFiServer::available(byte* status)
+{
+  { return accept(status); }
+}
+
+WiFiClient WiFiServer::accept(byte* /* status */)
 {
     WiFiClient retval;
 

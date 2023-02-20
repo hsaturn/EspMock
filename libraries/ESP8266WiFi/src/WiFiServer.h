@@ -15,6 +15,7 @@ class WiFiServer
 public:
   WiFiServer(uint16_t port);
   virtual ~WiFiServer() { close(); }
+  WiFiClient accept(uint8_t* status = NULL);
   WiFiClient available(uint8_t* status = NULL);
   bool hasClient();
   void begin(uint16_t port = 0, uint8_t backlog = 0);
