@@ -1,5 +1,6 @@
 ifeq ($(compiler), gcc)
   CXX=g++
+  EXTRA_CXXFLAGS+=-std=c++17
 else
   CXX=clang++
   ifeq ($(sanitize), 1)
