@@ -3,6 +3,7 @@
 #include <ESP8266WiFi.h>
 #include <TinyConsole.h>
 #include <TinyStreaming.h>
+#include <assert.h>
 
 std::list<NetworkObserver*> WiFiClient::observers;
 
@@ -112,6 +113,7 @@ size_t WiFiClient::write(const uint8_t* buffer, size_t length)
 
 void WiFiClient::_incoming(const uint8_t* in, size_t length)
 {
+    assert(data);
     for(size_t pos=0; pos<length; pos++)
         data->buffer.push(in[pos]);
 }

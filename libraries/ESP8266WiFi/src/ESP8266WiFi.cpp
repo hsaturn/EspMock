@@ -21,6 +21,8 @@ void ESP8266WiFiClass::init()
 void ESP8266WiFiClass::selectInstance(int n)
 {
   init();
+  assert(n);
+  assert(instances);
   if (n == current_instance) return;
 
   if (instances->find(n) == instances->end())
