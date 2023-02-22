@@ -1,9 +1,9 @@
 #pragma once
 
+#include <IPAddress.h>
 #include "WiFiClient.h"
 #include "WiFiServer.h"
 #include <wl_definitions.h>
-#include <IPAddress.h>
 #include "ESP8266WiFiTypes.h"
 #include <set>
 #include <map>
