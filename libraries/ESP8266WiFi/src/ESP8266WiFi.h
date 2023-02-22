@@ -23,7 +23,7 @@ class ESP8266WiFiClass
 {
   public:
     ESP8266WiFiClass();
-    ~ESP8266WiFiClass() { disconnect(true); }
+    ~ESP8266WiFiClass();
 
     wl_status_t status() { return status_; }
     wl_status_t begin(const char* ssid, const char *passphrase = NULL, int32_t channel = 0, const uint8_t* bssid = NULL, bool connect = true);
@@ -46,23 +46,12 @@ class ESP8266WiFiClass
     bool isPortUsed(uint16_t port);
     WiFiServer* establishLink(uint16_t port, WiFiClient*);
 
-    // From ESP8266WiFiGeneric.h, implemented as stubs only.
-    int hostByName(const char* aHostname, IPAddress& aResult) {
-      return hostByName(aHostname, aResult, 10000);
-    }
+    // From ESP8266WiFiGeneric.h
     int hostByName(
-        const char* /*aHostname*/,
-        IPAddress& /*aResult*/,
-        uint32_t /*timeout_ms*/) {
-      return 1;
-    }
-    int hostByName(
-        const char* /*aHostname*/,
-        IPAddress& /*aResult*/,
-        uint32_t /*timeout_ms*/,
-        DNSResolveType /*resolveType*/) {
-      return 1;
-    }
+        const char* aHostname,
+        IPAddress& aResult,
+        uint32_t timeout_ms = 10000,
+        DNSResolveType resolveType = DNSResolveType::DNS_AddrType_IPv4);
   public:
 
     static bool earlyAccept;
@@ -83,6 +72,16 @@ class ESP8266WiFiClass
 
     static std::unique_ptr<Container> instances;
     static int current_instance;
+
+  private: // For ESPmDSN (TODO no design yet)
+
+    // TODO, use mdns from here https://espressif.github.io/esp-protocols/mdns/en/index.html
+
+    friend class MDNSResponder;
+    void _setHostName(const char* hostname);
+
+    // TODO design registrar_ should be an instance of a Registrar class
+    static std::map<IPAddress, std::string> _registrar;
 };
 
 class ESP8266WiFiProxy
@@ -112,7 +111,16 @@ class ESP8266WiFiProxy
       return wifi()->hostByName(aHostname, aResult, timeout_ms, resolveType);
     }
 
-    private:
-      std::shared_ptr<ESP8266WiFiClass> wifi() const { return ESP8266WiFiClass::getInstance(); }
+  private: // For ESPmDSN (TODO no design yet)
+
+    std::shared_ptr<ESP8266WiFiClass> wifi() const { return ESP8266WiFiClass::getInstance(); }
+    // TODO, use mdns from here https://espressif.github.io/esp-protocols/mdns/en/index.html
+
+    friend class MDNSResponder;
+    void _setHostName(const char* hostname);
+
+    // TODO design registrar_ should be an instance of a Registrar class
+    static std::map<IPAddress, std::string> _registrar;
 };
+
 extern ESP8266WiFiProxy WiFi;

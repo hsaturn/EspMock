@@ -4,7 +4,7 @@
 CXXFLAGS = -Wextra -Wall -std=gnu++11 -fno-exceptions -fno-threadsafe-statics
 EXTRA_CXXFLAGS=-g3 -O0
 
-APP_NAME := network-tests
+APP_NAME := dns-tests
 ARDUINO_LIBS := AUnit ESP8266WiFi TinyConsole ESP8266mDNS
 ARDUINO_LIB_DIRS := ../../libraries
 EPOXY_CORE := EPOXY_CORE_ESP8266

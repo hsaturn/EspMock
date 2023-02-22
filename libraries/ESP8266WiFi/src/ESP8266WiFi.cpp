@@ -5,8 +5,22 @@
 std::unique_ptr<ESP8266WiFiClass::Container>  ESP8266WiFiClass::instances{};
 int ESP8266WiFiClass::current_instance = 0;
 bool ESP8266WiFiClass::earlyAccept = false;
+std::map<IPAddress, std::string> ESP8266WiFiClass::_registrar;
 
 ESP8266WiFiProxy WiFi;
+
+ESP8266WiFiClass::~ESP8266WiFiClass()
+{
+  disconnect(true);
+  auto it = _registrar.find(ip_address_);
+  if (it != _registrar.end())
+    _registrar.erase(it);
+}
+
+void ESP8266WiFiClass::_setHostName(const char* hostname)
+{
+  _registrar[ip_address_] = hostname;
+}
 
 void ESP8266WiFiClass::init()
 {
@@ -139,4 +153,22 @@ std::shared_ptr<ESP8266WiFiClass> ESP8266WiFiClass::getInstance()
         (*instances)[0] = std::make_shared<ESP8266WiFiClass>();
     assert(current_instance >= 0);
     return (*instances)[current_instance];
+}
+
+int ESP8266WiFiClass::hostByName(
+        const char* aHostname,
+        IPAddress& aResult,
+        uint32_t /* timeout_ms */,
+        DNSResolveType resolveType)
+{
+  if (resolveType != DNSResolveType::DNS_AddrType_IPv4) return 0;
+  for(auto it: _registrar)
+  {
+    if (it.second == aHostname)
+    {
+      aResult = it.first;
+      return 1;
+    }
+  }
+  return 0;
 }
