@@ -4,7 +4,7 @@
 compiler?=gcc
 folder?=
 jobs?=4
-MAKEOPTS=--no-print-directory compiler=$(compiler) -std=c++17
+MAKEOPTS=--no-print-directory compiler=$(compiler)
 RECIPES=all
 
 $(info MAKEOPTS : $(MAKEOPTS))

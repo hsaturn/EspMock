@@ -1,7 +1,7 @@
 # See https://github.com/bxparks/EpoxyDuino for documentation about this
 # Makefile to compile and run Arduino programs natively on Linux or MacOS.
 
-CXXFLAGS = -Wextra -Wall -std=gnu++11 -fno-exceptions -fno-threadsafe-statics
+CXXFLAGS = -Wextra -Wall -std=c++17 -fno-exceptions -fno-threadsafe-statics
 EXTRA_CXXFLAGS=-g3 -O0
 
 APP_NAME := dns-tests
