@@ -1,8 +1,6 @@
 #include <WiFiClient.h>
 #include <WiFiServer.h>
 #include <ESP8266WiFi.h>
-#include <TinyConsole.h>
-#include <TinyStreaming.h>
 #include <assert.h>
 
 std::list<NetworkObserver*> WiFiClient::observers;

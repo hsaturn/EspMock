@@ -1,5 +1,6 @@
 #include "ESP8266WiFi.h"
 #include <assert.h>
+#include <string>
 #include <algorithm>
 
 std::unique_ptr<ESP8266WiFiClass::Container>  ESP8266WiFiClass::instances{};
