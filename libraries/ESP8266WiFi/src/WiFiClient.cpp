@@ -3,6 +3,8 @@
 #include <ESP8266WiFi.h>
 #include <assert.h>
 
+std::set<WiFiClient::Data*> WiFiClient::Data::instances;
+
 std::list<NetworkObserver*> WiFiClient::observers;
 
 NetworkObserver::NetworkObserver(NetworkObserver::callback cb)
@@ -14,6 +16,29 @@ NetworkObserver::NetworkObserver(NetworkObserver::callback cb)
 NetworkObserver::~NetworkObserver()
 {
   WiFiClient::unregister(this);
+}
+
+WiFiClient::Data::Data()
+{
+  instances.insert(this);
+}
+
+WiFiClient::Data::~Data()
+{
+  instances.erase(this);
+}
+
+void WiFiClient::Data::disconnect(ESP8266WiFiClass* wifi_off)
+{
+  for(auto data: instances)
+  {
+    if ((data->wifi.get() == wifi_off)
+        or (data->connected_ and data->connected_->data->wifi.get() == wifi_off))
+    {
+      data->connecting_ = false;
+      data->connected_ = nullptr;
+    }
+  }
 }
 
 void WiFiClient::unregister(NetworkObserver* observer)
@@ -37,10 +62,18 @@ int WiFiClient::connect(const char* sip, uint16_t port)
     return connect(ip, port);
 }
 
+uint8_t WiFiClient::connected()
+{
+  if (data->wifi and data->wifi->status() == WL_CONNECTED)
+    return data->connected_ != nullptr;
+  return false;
+}
+
 void WiFiClient::_close()
 {
     if (data->connected_) data->connected_->_establish_link(nullptr);
-    data->buffer = decltype(data->buffer)();
+    // No clear member ...
+    while(data->buffer.size()) data->buffer.pop();
 }
 
 int WiFiClient::read()

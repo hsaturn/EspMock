@@ -112,6 +112,48 @@ test(wifi_should_be_wldisconnect_and_ip_unset_after_disconnection)
   assertEqual(static_cast<uint32_t>(WiFi.localIP()), (uint32_t)0);
 }
 
+// TODO, this test has not been verified on a real ESP8266 !
+test(client_should_not_be_connected_when_wifi_is_disconnected)
+{
+  start_servers(2, true);
+  IPAddress ip = WiFi.localIP();
+
+  WiFiServer server(80);
+  server.begin();
+
+  ESP8266WiFiClass::selectInstance(2);
+  WiFiClient client;
+  client.connect(ip, 80);
+
+  WiFiClient link = server.available();
+  assertTrue(link.connected());
+
+  WiFi.disconnect();
+  assertFalse(client.connected());
+}
+
+// TODO, this test has not been verified on a real ESP8266 !
+test(client_should_not_be_connected_when_otherside_wifi_is_disconnected)
+{
+  start_servers(2, true);
+  IPAddress ip = WiFi.localIP();
+
+  WiFiServer server(80);
+  server.begin();
+
+  ESP8266WiFiClass::selectInstance(2);
+  WiFiClient client;
+  client.connect(ip, 80);
+
+  WiFiClient link = server.available();
+  assertTrue(link.connected());
+
+  WiFi.disconnect();
+  assertFalse(link.connected());
+}
+
+
+
 test(network_two_esp_global_early_accept)
 {
   start_servers(2, true);

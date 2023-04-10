@@ -59,6 +59,7 @@ bool ESP8266WiFiClass::disconnect(bool wifioff)
     status_ = WL_DISCONNECTED;
     if (wifioff) mode_ = WIFI_OFF;
     ip_address_ = static_cast<uint32_t>(0);
+    WiFiClient::Data::disconnect(this);
     return true;
   }
   return false;

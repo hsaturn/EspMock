@@ -11,6 +11,7 @@
 #include <memory>
 #include <functional>
 #include <list>
+#include <set>
 
 class WiFiServer;
 class WiFiClient;
@@ -35,7 +36,7 @@ class NetworkObserver
 class WiFiClient : public Client
 {
   public:
-    uint8_t connected() override { return data->connected_ != nullptr; }
+    uint8_t connected() override;
 
     int connect(const char* ip, uint16_t port) override;
 
@@ -69,6 +70,7 @@ class WiFiClient : public Client
   private:
     friend class WiFiServer;
     friend class NetworkObserver;
+    friend class ESP8266WiFiClass;
 
     WiFiClient(WiFiClient* link, std::shared_ptr<ESP8266WiFiClass> wifi);
   
@@ -84,12 +86,17 @@ class WiFiClient : public Client
 
     struct Data
     {
+      Data();
+      ~Data();
       std::shared_ptr<ESP8266WiFiClass> wifi;
 
       int portno=0;
       WiFiClient* connected_ = nullptr;
       bool connecting_ = false;
       std::queue<uint8_t> buffer{};
+
+      static void disconnect(ESP8266WiFiClass*);
+      static std::set<Data*> instances;
     };
     std::shared_ptr<Data> data;
 
