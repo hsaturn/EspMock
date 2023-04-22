@@ -97,6 +97,8 @@ class ESP8266WiFiProxy
     int hostByName(const char* aHostname, IPAddress& aResult) {
       return wifi()->hostByName(aHostname, aResult);
     }
+
+    static void persistent(bool) {};
     int hostByName(
         const char* aHostname,
         IPAddress& aResult,
